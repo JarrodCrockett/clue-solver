@@ -57,15 +57,15 @@ class ClueSolverGUI(tk.Tk):
     def saw_item_button_click(self):
         item = self.choose_item_from_list("Choose an item", self.rooms + self.characters + self.weapons)
         if item:
-            self.clue_solver.saw_item(item)
             print(f"Saw Item: {item}")
+            self.clue_solver.saw_item(item)
 
     def heard_item_button_click(self):
         items = self.choose_items_from_list("List 3 items (room, char, wep)", self.rooms + self.characters + self.weapons, 3)
         if items:
             room, character, weapon = items
-            self.clue_solver.heard_item(room, character, weapon)
             print(f"Heard Item: {room}, {character}, {weapon}")
+            self.clue_solver.heard_item(room, character, weapon)
 
     def print_ptable_button_click(self):
         self.clue_solver.print_probability_tables()

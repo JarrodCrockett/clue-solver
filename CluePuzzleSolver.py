@@ -136,6 +136,7 @@ class ClueSolver:
         indexes_to_remove.sort(reverse=True)
         for index in indexes_to_remove:
             self.truth_table.remove_row_at_index(index)
+        print(f"Removed item: {item}")
 
     def update_truth_table2(self, room, character, weapon):
         i = 0
