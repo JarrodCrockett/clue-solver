@@ -163,12 +163,15 @@ class ClueSolver:
             if (roomIs and characterIs and weaponIs):
                 return
             elif (roomIs and characterIs):
+                print(f"Deleted weapon: {weapon}")
                 self.update_probability_table(weapon)
                 self.update_truth_table1(weapon)
             elif (roomIs and weaponIs):
+                print(f"Deleted character: {character}")
                 self.update_probability_table(character)
                 self.update_truth_table1(character)
             elif (characterIs and weaponIs):
+                print(f"Deleted room: {room}")
                 self.update_probability_table(room)
                 self.update_truth_table1(room)
     
