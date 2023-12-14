@@ -1,22 +1,3 @@
-# from CluePuzzleSolver import ClueSolver, TruthTable
-
-# def main():
-#     characters = ["Colonel Mustard", "Miss Scarlett", "Professor Plum", "Mrs. Peacock", "Mr. Green", "Mrs. White"]
-#     weapons = ["Candlestick", "Dagger", "Lead Pipe", "Revolver", "Rope", "Wrench"]
-#     rooms = ["Kitchen", "Ballroom", "Conservatory", "Dining Room", "Billiard Room", "Library", "Lounge", "Hall", "Study"]
-
-#     # Assume some objects are entered initially
-
-#     clue_solver = ClueSolver(rooms, characters, weapons)
-#     truth_table = TruthTable(rooms, characters, weapons)
-#     clue_solver.saw_item("Library")
-#     clue_solver.saw_item("Study")
-#     clue_solver.heard_item("Kitchen", "Colonel Mustard", "Candlestick")
-#     clue_solver.print_probability_tables()
-
-# if __name__ == "__main__":
-#     main()
-
 import tkinter as tk
 from tkinter import simpledialog
 from CluePuzzleSolver import ClueSolver, TruthTable
@@ -55,10 +36,7 @@ class ClueSolverGUI(tk.Tk):
         button_print_Ttables.pack()
 
     def saw_item_button_click(self):
-        item = self.choose_item_from_list("Choose an item", self.rooms + self.characters + self.weapons)
-        if item:
-            print(f"Saw Item: {item}")
-            self.clue_solver.saw_item(item)
+        self.create_item_buttons("Saw Item", self.rooms + self.characters + self.weapons)
 
     def heard_item_button_click(self):
         items = self.choose_items_from_list("List 3 items (room, char, wep)", self.rooms + self.characters + self.weapons, 3)
@@ -66,6 +44,30 @@ class ClueSolverGUI(tk.Tk):
             room, character, weapon = items
             print(f"Heard Item: {room}, {character}, {weapon}")
             self.clue_solver.heard_item(room, character, weapon)
+
+    def create_item_buttons(self, title, items, num_items=None):
+        # Create a new Toplevel window
+        new_window = tk.Toplevel(self)
+        new_window.title(title)
+
+        for item in items:
+            button = tk.Button(new_window, text=item, command=lambda item=item: self.handle_dynamic_button_click(title, item, num_items, new_window))
+            button.pack()
+
+    def handle_dynamic_button_click(self, title, item, num_items=None, window=None):
+        if num_items:
+            selected_items = self.choose_items_from_list(title, [item], num_items)
+            if selected_items:
+                print(f"{title}: {', '.join(selected_items)}")
+                # Perform the desired action with the selected items (e.g., self.clue_solver.heard_item)
+        else:
+            print(f"{title}: {item}")
+            self.clue_solver.saw_item(item)
+            # Perform the desired action with the selected item (e.g., self.clue_solver.saw_item)
+
+        # Close the new window after handling the click
+        if window:
+            window.destroy()
 
     def print_ptable_button_click(self):
         self.clue_solver.print_probability_tables()
