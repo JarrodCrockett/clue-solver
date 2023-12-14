@@ -200,45 +200,45 @@ class ClueSolver:
         for index in indexes_to_remove:
             self.truth_table.remove_row_at_index(index)
         if (type == 1):
-            cdiff = get_item_prob(unknown1, type)
-            wdiff = get_item_prob(unknown2, type)
+            cdiff = self.get_item_prob(unknown1, type)
+            wdiff = self.get_item_prob(unknown2, type)
             self.update_probability_table3(unknown1, type, cdiff)
             self.update_probability_table3(unknown2, type, wdiff)
         elif (type == 2):
-            rdiff = get_item_prob(unknown1, type)
-            wdiff = get_item_prob(unknown2, type)
+            rdiff = self.get_item_prob(unknown1, type)
+            wdiff = self.get_item_prob(unknown2, type)
             self.update_probability_table3(unknown1, type, rdiff)
             self.update_probability_table3(unknown2, type, wdiff)
         elif (type == 3):
-            rdiff = get_item_prob(unknown1, type)
-            cdiff = get_item_prob(unknown2, type)
+            rdiff = self.get_item_prob(unknown1, type)
+            cdiff = self.get_item_prob(unknown2, type)
             self.update_probability_table3(unknown1, type, rdiff)
             self.update_probability_table3(unknown2, type, cdiff)
         
-        print(f"Removed {i} total items")
+        print(f"Removed {len(indexes_to_remove)} total items with {unknown1} and {unknown2}")
     
     def update_probability_table3(self, item, type, rdiff=0, cdiff=0, wdiff=0):
         TheRoom = self.probability_table["Room"]
         TheChar = self.probability_table["Characters"]
         TheWep = self.probability_table["Weapons"]
         if (type != 1):
-            for item in self.probability_table["Room"]:
-                if (item == room):
-                    TheRoom[item] -= rdiff
-                if (item != room):
-                    TheRoom[item] += rdiff
+            for table_item in self.probability_table["Room"]:
+                if (item == table_item):
+                    TheRoom[table_item] -= rdiff
+                if (item != item):
+                    TheRoom[table_item] += rdiff
         if (type != 2):
-            for item in self.probability_table["Characters"]:
-                if (item == character):
-                    TheChar[item] -= cdiff
-                if (item != character):
-                    TheChar[item] += cdiff
+            for table_item in self.probability_table["Characters"]:
+                if (item == table_item):
+                    TheChar[table_item] -= cdiff
+                if (item != item):
+                    TheChar[table_item] += cdiff
         if (type != 3):
-            for item in self.probability_table["Weapons"]:
-                if (item == weapon):
-                    TheWep[item] -= wdiff
-                if (item != weapon):
-                    TheWep[item] += wdiff
+            for table_item in self.probability_table["Weapons"]:
+                if (item == table_item):
+                    TheWep[table_item] -= wdiff
+                if (item != item):
+                    TheWep[table_item] += wdiff
 
 
     def saw_item(self, item):
