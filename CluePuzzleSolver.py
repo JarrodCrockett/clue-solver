@@ -150,6 +150,7 @@ class ClueSolver:
         if (found):
             self.truth_table.remove_row_at_index(i)
             self.update_probability_table2(room, character, weapon)
+            print(f"Removed {room},  {character}, {weapon} from truth table.")
         else:
             print("Did Not Find")
             roomIs = True

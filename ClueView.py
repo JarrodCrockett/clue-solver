@@ -9,9 +9,9 @@ class ClueSolverGUI(tk.Tk):
         self.title("Clue Solver")
         self.geometry("400x300")
 
-        self.characters = ["mustard", "scarlett", "plum", "peacock", "green", "white"]
+        self.characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
         self.weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
-        self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "Study"]
+        self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
 
         self.clue_solver = ClueSolver(self.rooms, self.characters, self.weapons)
         self.truth_table = TruthTable(self.rooms, self.characters, self.weapons)
