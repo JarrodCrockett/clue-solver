@@ -175,7 +175,72 @@ class ClueSolver:
                 print(f"Deleted room: {room}")
                 self.update_probability_table(room)
                 self.update_truth_table1(room)
+            elif (roomIs and not characterIs and not weaponIs):
+                self.update_truth_table3(1, character, weapon)
+            elif (not roomIs and characterIs and not weaponIs):
+                self.update_truth_table3(2, room, weapon)
+            elif(not roomIs and not characterIs and weaponIs):
+                self.update_truth_table3(3, room, character)
+
+    def update_truth_table3(self, type, unknown1, unknown2):
+        indexes_to_remove = []
+        i = 0
+        for row in self.truth_table:
+            if (type == 1):
+                if (row['Character'] == unknown1 and row['Weapon'] == unknown2):
+                    indexes_to_remove.append(i)
+            if (type == 2):
+                if (row['Room'] == unknown1 and row['Weapon'] == unknown2):
+                    indexes_to_remove.append(i)
+            if (type == 3):
+                if (row['Room'] == unknown1 and row['Character'] == unknown2):
+                    indexes_to_remove.append(i)
+            i += 1
+        indexes_to_remove.sort(reverse=True)
+        for index in indexes_to_remove:
+            self.truth_table.remove_row_at_index(index)
+        if (type == 1):
+            cdiff = get_item_prob(unknown1, type)
+            wdiff = get_item_prob(unknown2, type)
+            self.update_probability_table3(unknown1, type, cdiff)
+            self.update_probability_table3(unknown2, type, wdiff)
+        elif (type == 2):
+            rdiff = get_item_prob(unknown1, type)
+            wdiff = get_item_prob(unknown2, type)
+            self.update_probability_table3(unknown1, type, rdiff)
+            self.update_probability_table3(unknown2, type, wdiff)
+        elif (type == 3):
+            rdiff = get_item_prob(unknown1, type)
+            cdiff = get_item_prob(unknown2, type)
+            self.update_probability_table3(unknown1, type, rdiff)
+            self.update_probability_table3(unknown2, type, cdiff)
+        
+        print(f"Removed {i} total items")
     
+    def update_probability_table3(self, item, type, rdiff=0, cdiff=0, wdiff=0):
+        TheRoom = self.probability_table["Room"]
+        TheChar = self.probability_table["Characters"]
+        TheWep = self.probability_table["Weapons"]
+        if (type != 1):
+            for item in self.probability_table["Room"]:
+                if (item == room):
+                    TheRoom[item] -= rdiff
+                if (item != room):
+                    TheRoom[item] += rdiff
+        if (type != 2):
+            for item in self.probability_table["Characters"]:
+                if (item == character):
+                    TheChar[item] -= cdiff
+                if (item != character):
+                    TheChar[item] += cdiff
+        if (type != 3):
+            for item in self.probability_table["Weapons"]:
+                if (item == weapon):
+                    TheWep[item] -= wdiff
+                if (item != weapon):
+                    TheWep[item] += wdiff
+
+
     def saw_item(self, item):
         self.update_probability_table(item)
         self.update_truth_table1(item)
