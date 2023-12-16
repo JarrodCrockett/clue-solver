@@ -50,6 +50,10 @@ class ProbabilityTable:
         print(f"Rooms: {self.probability_table['Rooms']}\n")
         print(f"Weapons: {self.probability_table['Weapons']}\n")
 
+    def remove_item_from_table(self, group, item):
+        self.probability_table.get(group, {}).pop(item)
+        self.normalize_table(group)
+
     def guess_update(self, guess):
 
         c = guess[0]
@@ -88,13 +92,6 @@ class ProbabilityTable:
                 w_value *= sum_values
                 self.probability_table['Weapons'][w] = w_value
                 self.normalize_table('Weapons')
-
-
-
-
-    def update_probability_table(self, group, probability):
-        # Update the probability table
-        self.probability_table[group] = probability
 
     def normalize_table(self, group):
         total_sum = sum(self.probability_table[group].values())
