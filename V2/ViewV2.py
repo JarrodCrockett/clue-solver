@@ -12,45 +12,25 @@ class ClueSolverGUI(tk.Tk):
         self.characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
         self.weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
         self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
-        self.players = ['computer', 'player2', 'player3', 'player4']
-
+        self.players = {}
         self.p_table = ProbabilityTable(self.characters, self.rooms, self.weapons)
 
         self.create_widgets()
 
     def create_widgets(self):
         # Add your GUI components here
-        label = tk.Label(self, text="Clue Solver")
+        label = tk.Label(self, text="Clue Solver GUI")
         label.pack(pady=10)
-        for player_name in self.players:
-            button = tk.Button(self, text=player_name, command=lambda p=player_name: self.open_player_window(p))
-            button.pack()
+
+        button_saw_item = tk.Button(self, text="Saw Item", command=self.saw_item_button_click)
+        button_saw_item.pack()
+
+        button_heard_item = tk.Button(self, text="Heard Item", command=self.heard_item_button_click)
+        button_heard_item.pack()
 
         button_print_ptables = tk.Button(self, text="Print P Table", command=self.print_ptable_button_click)
         button_print_ptables.pack()
 
-    def create_player(self, player_name):
-        # Create a player for the given name
-        player = Player(player_name)
-        # Optionally, you can store the player object or do something with it
-        print(f"Player {player_name} created with known cards: {player.has_cards}")
-
-    def open_player_window(self, player_name):
-        # Create a new top-level window for the player
-        player_window = tk.Toplevel(self)
-        player_window.title(f"{player_name}'s Functions")
-
-        # Create buttons for player functions
-        for method_name in dir(Player):
-            if callable(getattr(Player, method_name)) and not method_name.startswith("__"):
-                button = tk.Button(player_window, text=method_name, command=lambda m=method_name: self.call_player_function(player_name, m))
-                button.pack()
-
-    def call_player_function(self, player_name, function_name):
-        # Call the selected function from the Player class
-        player = Player(player_name)
-        function = getattr(player, function_name)
-        function()
 
     def saw_item_button_click(self):
         self.create_item_buttons("Saw Item", self.rooms + self.characters + self.weapons)
@@ -88,6 +68,7 @@ class ClueSolverGUI(tk.Tk):
 
     def print_ptable_button_click(self):
         self.p_table.show_probability_table()
+
 
     def choose_item_from_list(self, title, items):
         item = simpledialog.askstring(title, "Choose an item:", initialvalue=items[0], parent=self)
