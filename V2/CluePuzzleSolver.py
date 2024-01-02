@@ -3,24 +3,44 @@
 class Player:
     def __init__(self, name):
         self.name = name
-        self.has_cards = {
+        self.known_cards = {
             'Room': {},
             'Characters': {},
             'Weapons': {},}
         self.guesses = [] 
+
+    def get_name(self):
+        return self.name
+    
+    def get_number_of_guesses(self):
+        return len(self.guesses)
+    
+    def get_guess_list(self):
+        return self.guesses
+    
+    def get_number_of_known_cards(self):
+        c = len(self.known_cards["Characters"])
+        r = len(self.known_cards["Rooms"])
+        w = len(self.known_cards["Weapons"])
+        return c + r + w
+    
+    def change_player_name(self, new_name):
+        self.name = new_name
     
     def make_guess(self, guess):
         # Record the player's guess
         self.guesses.append(guess)
 
-    def show_has_cards(self):
+    def show_known_cards(self):
         # Print the known cards for the player
-        print(f"{self.name}'s Has Cards: {self.has_cards}")
+        print(f"{self.name}'s Has Cards: {self.known_cards}")
 
-    def update_has_cards(self, card, group):
-        self.has_cards[card] = True
+    def update_known_cards(self, card, group):
+        # Updates the known cards for this player
+        self.known_cards[group][card] = True
 
     def show_guesses(self):
+        # Shows what guesses have been guessed on this player
         print(f"{self.name} has these guesses:\n")
         for guess in self.guesses:
             print(guess)
@@ -98,7 +118,7 @@ class ProbabilityTable:
         for key in self.probability_table[group]:
                 self.probability_table[group][key] /= total_sum
 
-    #The Formula for bayes
+                #The Formula for bayes
         #for each guess I will take all the items in the guess
         #I will then add there three probabilities off the table.
         # for each node or item class 
@@ -107,4 +127,67 @@ class ProbabilityTable:
 
         #Then I will normilize the table for each value
         # formula table value = old value / old values added.
-        # I will probably have to create a copy dictionary or list to do this and then update the table
+        # I will probably have to create a copy dictionary or list to do this and then update the table 
+
+
+class ClueSolver:
+    def __init__(self):
+        self.characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
+        self.weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
+        self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
+        self.p_table = ProbabilityTable(self.characters, self.rooms, self.weapons)
+        player1 = Player('player1')
+        player2 = Player('player2')
+        player3 = Player('player3')
+        player4 = Player('player4')
+        player5 = Player('player5')
+        self.players = {'player1': player1, 'player2': player2,'player3': player3, 'player4': player4, 'player5': player5}
+
+    def get_players(self):
+        list_of_players = []
+        for player in self.players:
+            list_of_players.append(player.get_name())
+        return list_of_players
+    
+    def show_player_guess_list(self, player_name):
+        self.players[player_name].show_guesses
+
+    def make_guess(self, player_name, guess):
+        self.players[player_name].make_guess(guess)
+        self.p_table(guess)
+
+    def saw_card(self, player, card, group):
+        self.players[player].update_known_cards(card)
+        self.p_table.remove_item_from_table(group, card)
+
+    def rename_player(self, player, new_name):
+        self.players['new_name'] = self.players.pop(player)
+    
+    def show_probability_table(self):
+        return self.p_table.show_probability_table()
+    
+    def get_best_guess(self):
+        max_char = max(self.p_table["Characters"], self.p_table["Characters"].get)
+        max_char_value = max(self.p_table["Characters"].values())
+        max_room = max(self.p_table["Rooms"], self.p_table["Rooms"].get)
+        max_room_value = max(self.p_table["Rooms"].values())
+        max_wep = max(self.p_table["Weapons"], self.p_table["Weapons"].get)
+        max_wep_value = max(self.p_table["Weapons"].values())
+
+        print(f'The highest probablity guess is {max_char} in the {max_room} with the {max_wep}\n')
+        print(f'{max_char} - {max_char_value:.0%} {max_room} - {max_room_value:.0%} {max_wep} - {max_wep_value:.0%}')
+        player_with_least_known_cards = ""
+        min_shown_cards = 100
+
+        for player in self.players:
+            guess_list = player.get_guess_list()
+            if (player.get_number_of_known_cards < min_shown_cards):
+                min_shown_cards = player.get_number_of_known_cards
+                player_with_least_known_cards = player.get_name
+            for guess in guess_list:
+                if (guess[0] == max_char and guess[1] == max_room and guess[2] == max_wep and guess[3] == True):
+                    print(f"Player: {player.get_name()} has been asked this and show a card.\n")
+        
+        print(f"{player_with_least_known_cards} has the least amount of known cards.\n")
+        print("Hope this helps.")
+                

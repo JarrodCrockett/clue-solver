@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import simpledialog
-from CluePuzzleSolver import Player, ProbabilityTable
+from CluePuzzleSolver import ClueSolver
 
 class ClueSolverGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -9,11 +9,7 @@ class ClueSolverGUI(tk.Tk):
         self.title("Clue Solver")
         self.geometry("400x300")
 
-        self.characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
-        self.weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
-        self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
-        self.players = {}
-        self.p_table = ProbabilityTable(self.characters, self.rooms, self.weapons)
+        self.cluesolver = ClueSolver()
 
         self.create_widgets()
 
@@ -21,6 +17,9 @@ class ClueSolverGUI(tk.Tk):
         # Add your GUI components here
         label = tk.Label(self, text="Clue Solver GUI")
         label.pack(pady=10)
+
+        button_saw_item = tk.Button(self, text="Players", command=self.player_button_click)
+        button_saw_item.pack()
 
         button_saw_item = tk.Button(self, text="Saw Item", command=self.saw_item_button_click)
         button_saw_item.pack()
@@ -32,6 +31,9 @@ class ClueSolverGUI(tk.Tk):
         button_print_ptables.pack()
 
 
+    def player_button_click(self):
+        self.create_player_buttons("Player Selection")
+
     def saw_item_button_click(self):
         self.create_item_buttons("Saw Item", self.rooms + self.characters + self.weapons)
 
@@ -41,6 +43,15 @@ class ClueSolverGUI(tk.Tk):
             room, character, weapon = items
             print(f"Heard Item: {room}, {character}, {weapon}")
             self.clue_solver.heard_item(room, character, weapon)
+
+    def create_player_buttons(self, title, num_items=None):
+        # Create a new Toplevel window
+        new_window = tk.Toplevel(self)
+        new_window.title(title)
+
+        for player in self.players:
+            button = tk.Button(new_window, text=player, command=lambda item=player: self.handle_dynamic_button_click(title, item, num_items, new_window))
+            button.pack()
 
     def create_item_buttons(self, title, items, num_items=None):
         # Create a new Toplevel window
@@ -58,8 +69,9 @@ class ClueSolverGUI(tk.Tk):
                 print(f"{title}: {', '.join(selected_items)}")
                 # Perform the desired action with the selected items (e.g., self.clue_solver.heard_item)
         else:
+            print('Else statement')
             print(f"{title}: {item}")
-            self.clue_solver.saw_item(item)
+            #self.clue_solver.saw_item(item)
             # Perform the desired action with the selected item (e.g., self.clue_solver.saw_item)
 
         # Close the new window after handling the click
@@ -67,7 +79,8 @@ class ClueSolverGUI(tk.Tk):
             window.destroy()
 
     def print_ptable_button_click(self):
-        self.p_table.show_probability_table()
+        print("print table")
+        self.cluesolver.show_probability_table()
 
 
     def choose_item_from_list(self, title, items):
