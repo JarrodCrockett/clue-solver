@@ -135,6 +135,9 @@ class ClueSolver:
         self.characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
         self.weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
         self.rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
+        self.unknown_characters = ["mustard", "scarlett", "plum", "peacock", "green","orchid"]
+        self.unknown_weapons = ["candlestick", "dagger", "pipe", "revolver", "rope", "wrench"]
+        self.unknown_rooms = ["kitchen", "ballroom", "conservatory", "dining", "billiard", "library", "lounge", "hall", "study"]
         self.p_table = ProbabilityTable(self.characters, self.rooms, self.weapons)
         player1 = Player('player1')
         player2 = Player('player2')
@@ -143,6 +146,24 @@ class ClueSolver:
         player5 = Player('player5')
         self.players = {'player1': player1, 'player2': player2,'player3': player3, 'player4': player4, 'player5': player5}
 
+    def get_all_characters(self):
+        return self.characters
+    
+    def get_all_rooms(self):
+        return self.rooms
+    
+    def get_all_weapons(self):
+        return self.weapons
+    
+    def get_unknown_characters(self):
+        return self.unknown_characters
+    
+    def get_unknown_rooms(self):
+        return self.unknown_rooms
+    
+    def get_unknown_weapons(self):
+        return self.unknown_weapons
+    
     def get_players(self):
         list_of_players = []
         for player in self.players:
@@ -159,9 +180,18 @@ class ClueSolver:
     def saw_card(self, player, card, group):
         self.players[player].update_known_cards(card)
         self.p_table.remove_item_from_table(group, card)
+        if card in self.unknown_characters:
+            self.unknown_characters.remove(card)
+        elif card in self.unknown_rooms:
+            self.unknown_rooms.remove(card)
+        elif card in self.unknown_weapons:
+            self.unknown_weapons.remove(card)
+
+    def unsee_card(self, card, group):
+        print("out of luck right now feature to come.")
 
     def rename_player(self, player, new_name):
-        self.players['new_name'] = self.players.pop(player)
+        self.players[new_name] = self.players.pop(player)
     
     def show_probability_table(self):
         return self.p_table.show_probability_table()
