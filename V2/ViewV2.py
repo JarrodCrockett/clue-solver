@@ -18,24 +18,22 @@ class ClueSolverGUI(tk.Tk):
         label = tk.Label(self, text="Clue Solver GUI")
         label.pack(pady=10)
 
-        button_saw_item = tk.Button(self, text="Players", command=self.player_button_click)
-        button_saw_item.pack()
+        button_players_item = tk.Button(self, text="Players", command=self.players_button_click, padx=10, pady=10)
+        button_players_item.pack(pady=10)
 
-        button_saw_item = tk.Button(self, text="Saw Item", command=self.saw_item_button_click)
-        button_saw_item.pack()
+        button_get_best_guess = tk.Button(self, text="Get Best Guess", command=self.get_best_guess_button_click, padx=10, pady=10)
+        #button_get_best_guess.pack()
 
-        button_heard_item = tk.Button(self, text="Heard Item", command=self.heard_item_button_click)
-        button_heard_item.pack()
-
-        button_print_ptables = tk.Button(self, text="Print P Table", command=self.print_ptable_button_click)
-        button_print_ptables.pack()
+        button_print_ptables = tk.Button(self, text="Print P Table", command=self.print_ptable_button_click, padx=10, pady=10)
+        button_print_ptables.pack(pady=10)
 
 
-    def player_button_click(self):
+    def players_button_click(self):
         self.create_player_buttons("Player Selection")
 
-    def saw_item_button_click(self):
-        self.create_item_buttons("Saw Item", self.rooms + self.characters + self.weapons)
+    def showed_item_button_click(self):
+        items = self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons()
+        self.create_item_buttons("Showed Item", items)
 
     def heard_item_button_click(self):
         items = self.choose_items_from_list("List 3 items (room, char, wep)", self.rooms + self.characters + self.weapons, 3)
@@ -45,19 +43,43 @@ class ClueSolverGUI(tk.Tk):
             self.clue_solver.heard_item(room, character, weapon)
 
     def create_player_buttons(self, title, num_items=None):
+        print("create_player_buttons")
         # Create a new Toplevel window
         new_window = tk.Toplevel(self)
+        new_window.geometry("300x400")
         new_window.title(title)
+        players = self.cluesolver.get_players()
+        for player in players:
+            button = tk.Button(new_window, text=player, command=lambda player=player: self.create_player_menu(f"{player} menu", player, new_window), padx=10, pady=5)
+            button.pack(pady=10)
 
-        for player in self.players:
-            button = tk.Button(new_window, text=player, command=lambda item=player: self.handle_dynamic_button_click(title, item, num_items, new_window))
-            button.pack()
+    def change_player_name(self, title, player):
+        new_name = simpledialog.askstring(title, f"Type the new player name.", parent=self)
+        self.cluesolver.rename_player(player, new_name)
+
+    def create_player_menu(self, title, player, new_window):
+        print("create Player menu")
+        new_window = tk.Toplevel(self)
+        new_window.geometry("300x400")
+        new_window.title(title)
+        button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player: self.change_player_name_button_click(title, player, new_window))
+        button_change_player_name.pack()
+
+        button_saw_item = tk.Button(new_window, text="Saw Item", command=self.showed_item_button_click)
+        button_saw_item.pack()
+
+        print(f"{title}: {player}")
+
+    def change_player_name_button_click(self, title, player, new_window):
+        print("change player name button clicked")
+        self.change_player_name(title, player)
 
     def create_item_buttons(self, title, items, num_items=None):
         # Create a new Toplevel window
         new_window = tk.Toplevel(self)
+        new_window.geometry("300x400")
         new_window.title(title)
-
+        
         for item in items:
             button = tk.Button(new_window, text=item, command=lambda item=item: self.handle_dynamic_button_click(title, item, num_items, new_window))
             button.pack()
@@ -97,6 +119,9 @@ class ClueSolverGUI(tk.Tk):
             if len(selected_items) == num_items:
                 return selected_items
         return None
+
+    def get_best_guess_button_click(self):
+        self.cluesolver.get_best_guess()
 
 
 def main():

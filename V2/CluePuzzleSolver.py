@@ -167,8 +167,15 @@ class ClueSolver:
     def get_players(self):
         list_of_players = []
         for player in self.players:
-            list_of_players.append(player.get_name())
+            list_of_players.append(player)
         return list_of_players
+
+    def get_player(self, player):
+        for p in self.players:
+            if (player == p):
+                return p
+            else:
+                return -1
     
     def show_player_guess_list(self, player_name):
         self.players[player_name].show_guesses
@@ -197,11 +204,11 @@ class ClueSolver:
         return self.p_table.show_probability_table()
     
     def get_best_guess(self):
-        max_char = max(self.p_table["Characters"], self.p_table["Characters"].get)
+        max_char = max(self.p_table["Characters"].values(), self.p_table["Characters"].get)
         max_char_value = max(self.p_table["Characters"].values())
-        max_room = max(self.p_table["Rooms"], self.p_table["Rooms"].get)
+        max_room = max(self.p_table["Rooms"].values(), self.p_table["Rooms"].get)
         max_room_value = max(self.p_table["Rooms"].values())
-        max_wep = max(self.p_table["Weapons"], self.p_table["Weapons"].get)
+        max_wep = max(self.p_table["Weapons"].values(), self.p_table["Weapons"].get)
         max_wep_value = max(self.p_table["Weapons"].values())
 
         print(f'The highest probablity guess is {max_char} in the {max_room} with the {max_wep}\n')
