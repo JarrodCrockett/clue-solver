@@ -4,7 +4,7 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.known_cards = {
-            'Room': {},
+            'Rooms': {},
             'Characters': {},
             'Weapons': {},}
         self.guesses = [] 
@@ -33,7 +33,7 @@ class Player:
 
     def show_known_cards(self):
         # Print the known cards for the player
-        print(f"{self.name}'s Has Cards: {self.known_cards}")
+        print(f"{self.name}'s known cards: {self.known_cards}")
 
     def update_known_cards(self, card, group):
         # Updates the known cards for this player
@@ -54,6 +54,10 @@ class ProbabilityTable:
             'Weapons': {},
         }
         self.initialize_probability_table(chars, rooms, weps)
+
+    def __getitem__(self, key):
+        # Implement the __getitem__ method to allow subscripting
+        return self.probability_table[key]
 
     def initialize_probability_table(self, characters, rooms, weapons):
         for char in characters:
@@ -79,14 +83,14 @@ class ProbabilityTable:
         c = guess[0]
         r = guess[1]
         w = guess[2]
-        showed_card = True
+        showed_card = guess[3].lower()
 
         c_value = self.probability_table.get('Characters', {}).get(c, 0)
         r_value = self.probability_table.get('Rooms', {}).get(r, 0)
         w_value = self.probability_table.get('Weapons', {}).get(w, 0)
         sum_values = c_value + r_value + w_value
 
-        if (not showed_card):
+        if (showed_card == "false"):
             if (c_value != 0):
                 c_value /= sum_values
                 self.probability_table['Characters'][c] = c_value
@@ -177,15 +181,26 @@ class ClueSolver:
             else:
                 return -1
     
-    def show_player_guess_list(self, player_name):
-        self.players[player_name].show_guesses
+    def show_player_guess_list(self, player):
+        self.players[player].show_guesses()
 
-    def make_guess(self, player_name, guess):
-        self.players[player_name].make_guess(guess)
-        self.p_table(guess)
+    def show_player_known_cards(self, player):
+        self.players[player].show_known_cards()
+        
+    def make_guess(self, player, guess):
+        print(guess)
+        print(player)
+        self.players[player].make_guess(guess)
+        self.p_table.guess_update(guess)
 
-    def saw_card(self, player, card, group):
-        self.players[player].update_known_cards(card)
+    def saw_card(self, player, card):
+        group = "Rooms"
+        if card in self.p_table["Characters"]:
+            group = "Characters"
+        elif card in self.p_table["Weapons"]:
+            group = "Weapons"
+
+        self.players[player].update_known_cards(card, group)
         self.p_table.remove_item_from_table(group, card)
         if card in self.unknown_characters:
             self.unknown_characters.remove(card)

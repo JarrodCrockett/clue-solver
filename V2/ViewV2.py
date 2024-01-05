@@ -5,12 +5,9 @@ from CluePuzzleSolver import ClueSolver
 class ClueSolverGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.title("Clue Solver")
         self.geometry("400x300")
-
         self.cluesolver = ClueSolver()
-
         self.create_widgets()
 
     def create_widgets(self):
@@ -31,19 +28,17 @@ class ClueSolverGUI(tk.Tk):
     def players_button_click(self):
         self.create_player_buttons("Player Selection")
 
-    def showed_item_button_click(self):
-        items = self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons()
-        self.create_item_buttons("Showed Item", items)
+    def showed_item_button_click(self, player):
+        items = self.cluesolver.get_unknown_characters() + self.cluesolver.get_unknown_rooms() + self.cluesolver.get_unknown_weapons()
+        self.create_item_buttons("Showed Item",player, items, 1)
 
-    def heard_item_button_click(self):
-        items = self.choose_items_from_list("List 3 items (room, char, wep)", self.rooms + self.characters + self.weapons, 3)
-        if items:
-            room, character, weapon = items
-            print(f"Heard Item: {room}, {character}, {weapon}")
-            self.clue_solver.heard_item(room, character, weapon)
+    def heard_guess_button_click(self, player):
+        guess = self.choose_items_from_list('Enter the guess you heard', self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons(), 4)
+        if guess:
+            print(f"Heard Item: {guess}")
+            self.cluesolver.make_guess(player, guess)
 
     def create_player_buttons(self, title, num_items=None):
-        print("create_player_buttons")
         # Create a new Toplevel window
         new_window = tk.Toplevel(self)
         new_window.geometry("300x400")
@@ -58,42 +53,53 @@ class ClueSolverGUI(tk.Tk):
         self.cluesolver.rename_player(player, new_name)
 
     def create_player_menu(self, title, player, new_window):
-        print("create Player menu")
         new_window = tk.Toplevel(self)
         new_window.geometry("300x400")
         new_window.title(title)
-        button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player: self.change_player_name_button_click(title, player, new_window))
-        button_change_player_name.pack()
+        button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player: self.change_player_name_button_click(title, player, new_window), padx=10, pady=10)
+        button_change_player_name.pack(pady=10)
 
-        button_saw_item = tk.Button(new_window, text="Saw Item", command=self.showed_item_button_click)
-        button_saw_item.pack()
+        button_saw_item = tk.Button(new_window, text="Saw Item", command=lambda player=player: self.showed_item_button_click(player), padx=10, pady=10)
+        button_saw_item.pack(pady=10)
 
-        print(f"{title}: {player}")
+        button_heard_guess = tk.Button(new_window, text="Heard Item", command=lambda player=player: self.heard_guess_button_click(player), padx=10, pady=10)
+        button_heard_guess.pack(pady=10)
+
+        button_shown_known_cards = tk.Button(new_window, text="Show Known Cards", command=lambda player=player: self.print_known_cards_button_click(player), padx=10, pady=10)
+        button_shown_known_cards.pack(pady=10)
+
+        return None
 
     def change_player_name_button_click(self, title, player, new_window):
-        print("change player name button clicked")
         self.change_player_name(title, player)
 
-    def create_item_buttons(self, title, items, num_items=None):
+    def create_item_buttons(self, title, player, items, num_items=None):
         # Create a new Toplevel window
         new_window = tk.Toplevel(self)
-        new_window.geometry("300x400")
+        new_window.geometry("300x600")
         new_window.title(title)
         
         for item in items:
-            button = tk.Button(new_window, text=item, command=lambda item=item: self.handle_dynamic_button_click(title, item, num_items, new_window))
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item: self.saw_player_card(player, item))
             button.pack()
 
-    def handle_dynamic_button_click(self, title, item, num_items=None, window=None):
+    def saw_player_card(self, player, item):
+        self.cluesolver.saw_card(player, item)
+
+    def print_known_cards_button_click(self, player):
+        print("show known cards")
+        self.cluesolver.show_player_known_cards(player)
+
+    def handle_dynamic_button_click(self, title, player, item, num_items=None, window=None):
         if num_items:
             selected_items = self.choose_items_from_list(title, [item], num_items)
             if selected_items:
                 print(f"{title}: {', '.join(selected_items)}")
                 # Perform the desired action with the selected items (e.g., self.clue_solver.heard_item)
         else:
-            print('Else statement')
+            print(player)
             print(f"{title}: {item}")
-            #self.clue_solver.saw_item(item)
+            self.cluesolver.saw_card(player, item)
             # Perform the desired action with the selected item (e.g., self.clue_solver.saw_item)
 
         # Close the new window after handling the click
@@ -101,7 +107,6 @@ class ClueSolverGUI(tk.Tk):
             window.destroy()
 
     def print_ptable_button_click(self):
-        print("print table")
         self.cluesolver.show_probability_table()
 
 
@@ -112,11 +117,16 @@ class ClueSolverGUI(tk.Tk):
         return None
 
     def choose_items_from_list(self, title, items, num_items):
-        items_str = simpledialog.askstring(title, f"Choose {num_items} items (separated by commas):", parent=self)
+        items.append('true')
+        items.append('false')
+        items_str = simpledialog.askstring(title, f'List 3 items and if they showed a card "True" or "False"(separated by commas):', parent=self)
         if items_str:
             selected_items = items_str.split(',')
+            print(selected_items)
+            print(items)
             selected_items = [item.strip() for item in selected_items if item.strip() in items]
             if len(selected_items) == num_items:
+                print(selected_items)
                 return selected_items
         return None
 
