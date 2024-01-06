@@ -188,8 +188,6 @@ class ClueSolver:
         self.players[player].show_known_cards()
         
     def make_guess(self, player, guess):
-        print(guess)
-        print(player)
         self.players[player].make_guess(guess)
         self.p_table.guess_update(guess)
 

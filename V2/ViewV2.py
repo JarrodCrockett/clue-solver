@@ -35,7 +35,6 @@ class ClueSolverGUI(tk.Tk):
     def heard_guess_button_click(self, player):
         guess = self.choose_items_from_list('Enter the guess you heard', self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons(), 4)
         if guess:
-            print(f"Heard Item: {guess}")
             self.cluesolver.make_guess(player, guess)
 
     def create_player_buttons(self, title, num_items=None):
@@ -59,14 +58,17 @@ class ClueSolverGUI(tk.Tk):
         button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player: self.change_player_name_button_click(title, player, new_window), padx=10, pady=10)
         button_change_player_name.pack(pady=10)
 
-        button_saw_item = tk.Button(new_window, text="Saw Item", command=lambda player=player: self.showed_item_button_click(player), padx=10, pady=10)
+        button_saw_item = tk.Button(new_window, text="Saw Card", command=lambda player=player: self.showed_item_button_click(player), padx=10, pady=10)
         button_saw_item.pack(pady=10)
 
-        button_heard_guess = tk.Button(new_window, text="Heard Item", command=lambda player=player: self.heard_guess_button_click(player), padx=10, pady=10)
+        button_heard_guess = tk.Button(new_window, text="Heard Player Guess", command=lambda player=player: self.heard_guess_button_click(player), padx=10, pady=10)
         button_heard_guess.pack(pady=10)
 
         button_shown_known_cards = tk.Button(new_window, text="Show Known Cards", command=lambda player=player: self.print_known_cards_button_click(player), padx=10, pady=10)
         button_shown_known_cards.pack(pady=10)
+
+        button_shown_guesses_ = tk.Button(new_window, text="Show Guesses", command=lambda player=player: self.print_player_guesses_button_click(player), padx=10, pady=10)
+        button_shown_guesses_.pack(pady=10)
 
         return None
 
@@ -87,8 +89,10 @@ class ClueSolverGUI(tk.Tk):
         self.cluesolver.saw_card(player, item)
 
     def print_known_cards_button_click(self, player):
-        print("show known cards")
         self.cluesolver.show_player_known_cards(player)
+
+    def print_player_guesses_button_click(self, player):
+        self.cluesolver.show_player_guess_list(player)
 
     def handle_dynamic_button_click(self, title, player, item, num_items=None, window=None):
         if num_items:
