@@ -33,7 +33,7 @@ class ClueSolverGUI(tk.Tk):
         self.create_item_buttons("Showed Item",player, items, 1)
 
     def heard_guess_button_click(self, player):
-        guess = self.choose_items_from_list('Enter the guess you heard', self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons(), 4)
+        guess = self.choose_items_from_list('Enter the guess you heard', self.cluesolver.get_all_characters(), self.cluesolver.get_all_rooms(), self.cluesolver.get_all_weapons(), 4)
         if guess:
             self.cluesolver.make_guess(player, guess)
 
@@ -83,8 +83,8 @@ class ClueSolverGUI(tk.Tk):
         new_window.title(title)
         
         for item in items:
-            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()])
-            button.pack()
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()], padx=10, pady=10)
+            button.pack(pady=10)
 
 
     def saw_player_card(self, player, item):
@@ -122,19 +122,58 @@ class ClueSolverGUI(tk.Tk):
             return item
         return None
 
-    def choose_items_from_list(self, title, items, num_items):
-        items.append('true')
-        items.append('false')
-        items_str = simpledialog.askstring(title, f'List 3 items and if they showed a card "True" or "False"(separated by commas):', parent=self)
-        if items_str:
-            selected_items = items_str.split(',')
-            print(selected_items)
-            print(items)
-            selected_items = [item.strip() for item in selected_items if item.strip() in items]
-            if len(selected_items) == num_items:
-                print(selected_items)
-                return selected_items
-        return None
+    def choose_items_from_list(self, title, chars, rooms, weps, num_items):
+        character = self.choose_item_for_guess('Choose a Character', chars)
+        room = self.choose_item_for_guess('Choose a Room', rooms)
+        weapon = self.choose_item_for_guess('Choose a Weapon', weps)
+        showedCard = tk.StringVar()
+        # Create a new Toplevel window for the boolean value
+        new_window = tk.Toplevel(self)
+        new_window.geometry("300x600")
+        new_window.title("Player Showed a Card")
+
+        def update_and_close(bool):
+            showedCard.set(bool)
+            new_window.destroy()
+        for value in ['true', 'false']:
+            button = tk.Button(new_window, text=value, command=lambda value=value: update_and_close(value), padx=10, pady=10)
+            button.pack(pady=10)
+
+        # Wait for the user to close the window
+        self.wait_window(new_window)
+        guess = (character, room, weapon, showedCard.get())
+        # Check if the correct number of items were selected
+        if len(guess) != num_items:
+            return None
+        print(guess)
+        return guess
+            # self.wait_window(new_window)
+            # items_str = simpledialog.askstring(title, f'List 3 items and if they showed a card "True" or "False"(separated by commas):', parent=self)
+            # if items_str:
+            #     selected_items = items_str.split(',')
+            #     print(selected_items)
+            #     print(items)
+            #     selected_items = [item.strip() for item in selected_items if item.strip() in items]
+            #     if len(selected_items) == num_items:
+            #         print(selected_items)
+            #         return selected_items
+    def choose_item_for_guess(self, title, items):
+        selected_item = tk.StringVar()
+        new_window = tk.Toplevel(self)
+        new_window.geometry("300x600")
+        new_window.title(title)
+
+        def update_and_close(item):
+            selected_item.set(item)
+            new_window.destroy()
+
+        for item in items:
+            button = tk.Button(new_window, text=item, command=lambda items=items: update_and_close(item), padx=10, pady=10)
+            button.pack(pady=10)
+
+        self.wait_window(new_window)
+
+        return selected_item.get()
 
     def get_best_guess_button_click(self):
         self.cluesolver.get_best_guess()
