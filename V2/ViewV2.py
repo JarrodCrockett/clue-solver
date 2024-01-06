@@ -44,30 +44,31 @@ class ClueSolverGUI(tk.Tk):
         new_window.title(title)
         players = self.cluesolver.get_players()
         for player in players:
-            button = tk.Button(new_window, text=player, command=lambda player=player: self.create_player_menu(f"{player} menu", player, new_window), padx=10, pady=5)
+            button = tk.Button(new_window, text=player, command=lambda player=player, new_window=new_window: [self.create_player_menu(f"{player} menu", player, new_window), new_window.destroy()], padx=10, pady=5)
             button.pack(pady=10)
 
     def change_player_name(self, title, player):
         new_name = simpledialog.askstring(title, f"Type the new player name.", parent=self)
         self.cluesolver.rename_player(player, new_name)
+        return None
 
     def create_player_menu(self, title, player, new_window):
         new_window = tk.Toplevel(self)
         new_window.geometry("300x400")
         new_window.title(title)
-        button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player: self.change_player_name_button_click(title, player, new_window), padx=10, pady=10)
+        button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player, new_window=new_window: [self.change_player_name_button_click(title, player, new_window), new_window.destroy()], padx=10, pady=10)
         button_change_player_name.pack(pady=10)
 
-        button_saw_item = tk.Button(new_window, text="Saw Card", command=lambda player=player: self.showed_item_button_click(player), padx=10, pady=10)
+        button_saw_item = tk.Button(new_window, text="Player Showed Card", command=lambda player=player, new_window=new_window: [self.showed_item_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_saw_item.pack(pady=10)
 
-        button_heard_guess = tk.Button(new_window, text="Heard Player Guess", command=lambda player=player: self.heard_guess_button_click(player), padx=10, pady=10)
+        button_heard_guess = tk.Button(new_window, text="Heard Player Guess", command=lambda player=player, new_window=new_window: [self.heard_guess_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_heard_guess.pack(pady=10)
 
-        button_shown_known_cards = tk.Button(new_window, text="Show Known Cards", command=lambda player=player: self.print_known_cards_button_click(player), padx=10, pady=10)
+        button_shown_known_cards = tk.Button(new_window, text="Show Known Cards", command=lambda player=player, new_window=new_window: [self.print_known_cards_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_shown_known_cards.pack(pady=10)
 
-        button_shown_guesses_ = tk.Button(new_window, text="Show Guesses", command=lambda player=player: self.print_player_guesses_button_click(player), padx=10, pady=10)
+        button_shown_guesses_ = tk.Button(new_window, text="Show Guesses", command=lambda player=player, new_window=new_window: [self.print_player_guesses_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_shown_guesses_.pack(pady=10)
 
         return None
@@ -82,8 +83,9 @@ class ClueSolverGUI(tk.Tk):
         new_window.title(title)
         
         for item in items:
-            button = tk.Button(new_window, text=item, command=lambda player=player, item=item: self.saw_player_card(player, item))
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()])
             button.pack()
+
 
     def saw_player_card(self, player, item):
         self.cluesolver.saw_card(player, item)
