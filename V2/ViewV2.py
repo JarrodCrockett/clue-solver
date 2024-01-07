@@ -98,8 +98,8 @@ class ClueSolverGUI(tk.Tk):
         new_window.title(title)
         
         for item in items:
-            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()], padx=10, pady=10)
-            button.pack(pady=10)
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()])
+            button.pack(pady=1)
 
 
     def saw_player_card(self, player, item):

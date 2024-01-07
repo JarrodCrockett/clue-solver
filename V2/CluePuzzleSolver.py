@@ -217,6 +217,7 @@ class ClueSolver:
 
     def rename_player(self, player, new_name):
         self.players[new_name] = self.players.pop(player)
+        self.players[new_name].name = new_name
 
     def delete_player(self, player):
         self.players.pop(player)
