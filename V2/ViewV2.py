@@ -6,7 +6,7 @@ class ClueSolverGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title("Clue Solver")
-        self.geometry("400x300")
+        self.geometry("400x500")
         self.cluesolver = ClueSolver()
         self.create_widgets()
 
@@ -24,6 +24,15 @@ class ClueSolverGUI(tk.Tk):
         button_print_ptables = tk.Button(self, text="Print P Table", command=self.print_ptable_button_click, padx=10, pady=10)
         button_print_ptables.pack(pady=10)
 
+        button_print_all_known_cards = tk.Button(self, text="Print All Known Cards", command=self.print_all_known_cards_button_click, padx=10, pady=10)
+        button_print_all_known_cards.pack(pady=10)
+
+        button_clr_console = tk.Button(self, text="Clear Console", command=self.clr_console_button_click, padx=10, pady=10)
+        button_clr_console.pack(pady=10)
+
+
+    def print_all_known_cards_button_click(self):
+        self.cluesolver.get_all_known_cards()
 
     def players_button_click(self):
         self.create_player_buttons("Player Selection")
@@ -71,10 +80,16 @@ class ClueSolverGUI(tk.Tk):
         button_shown_guesses_ = tk.Button(new_window, text="Show Guesses", command=lambda player=player, new_window=new_window: [self.print_player_guesses_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_shown_guesses_.pack(pady=10)
 
+        button_delete_player = tk.Button(new_window, text="Delete Player", command=lambda player=player, new_window=new_window: [self.delete_player_button_click(player), new_window.destroy()], padx=10, pady=10)
+        button_delete_player.pack(pady=10)
+
         return None
 
     def change_player_name_button_click(self, title, player, new_window):
         self.change_player_name(title, player)
+
+    def delete_player_button_click(self, player):
+        self.cluesolver.delete_player(player)
 
     def create_item_buttons(self, title, player, items, num_items=None):
         # Create a new Toplevel window
@@ -157,6 +172,7 @@ class ClueSolverGUI(tk.Tk):
             #     if len(selected_items) == num_items:
             #         print(selected_items)
             #         return selected_items
+    
     def choose_item_for_guess(self, title, items):
         selected_item = tk.StringVar()
         new_window = tk.Toplevel(self)
@@ -177,6 +193,9 @@ class ClueSolverGUI(tk.Tk):
 
     def get_best_guess_button_click(self):
         self.cluesolver.get_best_guess()
+
+    def clr_console_button_click(self):
+        self.cluesolver.clear_console()
 
 
 def main():

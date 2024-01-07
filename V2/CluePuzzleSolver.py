@@ -1,4 +1,4 @@
-
+import os
 
 class Player:
     def __init__(self, name):
@@ -180,6 +180,11 @@ class ClueSolver:
                 return p
             else:
                 return -1
+            
+    def get_all_known_cards(self):        
+        for player in self.players:
+            self.players[player].show_known_cards()
+
     
     def show_player_guess_list(self, player):
         self.players[player].show_guesses()
@@ -212,6 +217,9 @@ class ClueSolver:
 
     def rename_player(self, player, new_name):
         self.players[new_name] = self.players.pop(player)
+
+    def delete_player(self, player):
+        self.players.pop(player)
     
     def show_probability_table(self):
         return self.p_table.show_probability_table()
@@ -240,4 +248,7 @@ class ClueSolver:
         
         print(f"{player_with_least_known_cards} has the least amount of known cards.\n")
         print("Hope this helps.")
+
+    def clear_console(self):
+        os.system('cls')
                 
