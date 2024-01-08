@@ -8,6 +8,10 @@ class Player:
             'Characters': {},
             'Weapons': {},}
         self.guesses = [] 
+        self.seen_cards = {
+            'Rooms': {},
+            'Characters': {},
+            'Weapons': {},}
 
     def get_name(self):
         return self.name
@@ -24,6 +28,12 @@ class Player:
         w = len(self.known_cards["Weapons"])
         return c + r + w
     
+    def get_seen_cards(self):
+        return self.seen_cards
+    
+    def get_known_cards(self):
+        return self.known_cards
+
     def change_player_name(self, new_name):
         self.name = new_name
     
@@ -38,6 +48,9 @@ class Player:
     def update_known_cards(self, card, group):
         # Updates the known cards for this player
         self.known_cards[group][card] = True
+
+    def update_seen_cards(self, card, group):
+        self.seen_cards[group][card] = True
 
     def show_guesses(self):
         # Shows what guesses have been guessed on this player
@@ -70,7 +83,7 @@ class ProbabilityTable:
 
     def show_probability_table(self):
         # Print the probability table for the player
-        print(f"Characters: {self.probability_table['Characters']}\n")
+        print(f"\nCharacters: {self.probability_table['Characters']}\n")
         print(f"Rooms: {self.probability_table['Rooms']}\n")
         print(f"Weapons: {self.probability_table['Weapons']}\n")
 
@@ -89,7 +102,6 @@ class ProbabilityTable:
         r_value = self.probability_table.get('Rooms', {}).get(r, 0)
         w_value = self.probability_table.get('Weapons', {}).get(w, 0)
         sum_values = c_value + r_value + w_value
-
         if (showed_card == "false"):
             if (c_value != 0):
                 c_value /= sum_values
@@ -193,10 +205,49 @@ class ClueSolver:
         self.players[player].show_known_cards()
         
     def make_guess(self, player, guess):
+        shown_card_is_players = False
+        c_found = False
+        r_found = False
+        w_found = False
+        c = guess[0]
+        r = guess[1]
+        w = guess[2]
+        showed_card = guess[3]
+        player_that_made_guess = guess[4]
+        #I need to check the guess values for each players known cards.
+        #If they exist in another players known cards I need to update the table and known cards for each player.
+        if (showed_card == 'true'):
+            asked_players_known_cards = self.players[player].get_known_cards()
+            
+            if (c in asked_players_known_cards['Characters'] or c in asked_players_known_cards['Rooms'] or w in asked_players_known_cards['Weapons']):
+                shown_card_is_players = True
+            else :
+                for other_player in self.players:
+                    if other_player != player:
+                        other_players_known_cards = self.players[other_player].get_known_cards()
+                        if (c in other_players_known_cards['Characters']):
+                            c_found = True
+                        if (r in other_players_known_cards['Rooms']):
+                            r_found = True
+                        if ( w in other_players_known_cards['Weapons']):
+                            w_found = True
+
+
+            if(c_found and r_found):
+                self.saw_card(player, w, player_that_made_guess)
+            elif(r_found and w_found):
+                self.saw_card(player, c, player_that_made_guess)
+            elif(c_found and w_found):
+                self.saw_card(player, r, player_that_made_guess)
+
         self.players[player].make_guess(guess)
         self.p_table.guess_update(guess)
 
-    def saw_card(self, player, card):
+
+
+
+
+    def remove_game_start_cards(self, player, card):
         group = "Rooms"
         if card in self.p_table["Characters"]:
             group = "Characters"
@@ -204,6 +255,23 @@ class ClueSolver:
             group = "Weapons"
 
         self.players[player].update_known_cards(card, group)
+        self.p_table.remove_item_from_table(group, card)
+        if card in self.unknown_characters:
+            self.unknown_characters.remove(card)
+        elif card in self.unknown_rooms:
+            self.unknown_rooms.remove(card)
+        elif card in self.unknown_weapons:
+            self.unknown_weapons.remove(card)
+
+    def saw_card(self, player, card, showedPlayer):
+        group = "Rooms"
+        if card in self.p_table["Characters"]:
+            group = "Characters"
+        elif card in self.p_table["Weapons"]:
+            group = "Weapons"
+
+        self.players[player].update_known_cards(card, group)
+        self.players[showedPlayer].update_seen_cards(card, group)
         self.p_table.remove_item_from_table(group, card)
         if card in self.unknown_characters:
             self.unknown_characters.remove(card)

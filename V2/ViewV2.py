@@ -38,7 +38,7 @@ class ClueSolverGUI(tk.Tk):
         self.create_player_buttons("Player Selection")
 
     def showed_item_button_click(self, player):
-        items = self.cluesolver.get_unknown_characters() + self.cluesolver.get_unknown_rooms() + self.cluesolver.get_unknown_weapons()
+        items = self.cluesolver.get_all_characters() + self.cluesolver.get_all_rooms() + self.cluesolver.get_all_weapons()
         self.create_item_buttons("Showed Item",player, items, 1)
 
     def heard_guess_button_click(self, player):
@@ -63,7 +63,7 @@ class ClueSolverGUI(tk.Tk):
 
     def create_player_menu(self, title, player, new_window):
         new_window = tk.Toplevel(self)
-        new_window.geometry("300x400")
+        new_window.geometry("300x600")
         new_window.title(title)
         button_change_player_name = tk.Button(new_window, text="Change Name", command=lambda player=player, new_window=new_window: [self.change_player_name_button_click(title, player, new_window), new_window.destroy()], padx=10, pady=10)
         button_change_player_name.pack(pady=10)
@@ -79,6 +79,9 @@ class ClueSolverGUI(tk.Tk):
 
         button_shown_guesses_ = tk.Button(new_window, text="Show Players Guesses", command=lambda player=player, new_window=new_window: [self.print_player_guesses_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_shown_guesses_.pack(pady=10)
+
+        button_start_cards = tk.Button(new_window, text="Players Start Cards", command=lambda player=player, new_window=new_window: [self.start_cards_button_click(player)], padx=10, pady=10)
+        button_start_cards.pack(pady=10)
 
         button_delete_player = tk.Button(new_window, text="Delete Player", command=lambda player=player, new_window=new_window: [self.delete_player_button_click(player), new_window.destroy()], padx=10, pady=10)
         button_delete_player.pack(pady=10)
@@ -96,36 +99,40 @@ class ClueSolverGUI(tk.Tk):
         new_window = tk.Toplevel(self)
         new_window.geometry("300x600")
         new_window.title(title)
+
+        players = self.cluesolver.get_players()
+        
+        showedPlayer = self.choose_item_for_guess('Choose Player Saw This Card', players)
         
         for item in items:
-            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.saw_player_card(player, item), new_window.destroy()])
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, showedPlayer=showedPlayer, new_window=new_window: [self.saw_player_card(player, item, showedPlayer), new_window.destroy()])
             button.pack(pady=1)
 
+    def delete_start_cards(self, title, player, items, num_items=None):
+        # Create a new Toplevel window
+        new_window = tk.Toplevel(self)
+        new_window.geometry("300x600")
+        new_window.title(title)
+        
+        for item in items:
+            button = tk.Button(new_window, text=item, command=lambda player=player, item=item, new_window=new_window: [self.remove_start_cards(player, item), new_window.destroy()])
+            button.pack(pady=1)
 
-    def saw_player_card(self, player, item):
-        self.cluesolver.saw_card(player, item)
+    def start_cards_button_click(self, player):
+        items = self.cluesolver.get_unknown_characters() + self.cluesolver.get_unknown_rooms() + self.cluesolver.get_unknown_weapons()
+        self.delete_start_cards('Starting Cards', player, items)
+
+    def saw_player_card(self, player, item, showedPlayer):
+        self.cluesolver.saw_card(player, item, showedPlayer)
+
+    def remove_start_cards(self, player, card):
+        self.cluesolver.remove_game_start_cards(player, card)
 
     def print_known_cards_button_click(self, player):
         self.cluesolver.show_player_known_cards(player)
 
     def print_player_guesses_button_click(self, player):
         self.cluesolver.show_player_guess_list(player)
-
-    def handle_dynamic_button_click(self, title, player, item, num_items=None, window=None):
-        if num_items:
-            selected_items = self.choose_items_from_list(title, [item], num_items)
-            if selected_items:
-                print(f"{title}: {', '.join(selected_items)}")
-                # Perform the desired action with the selected items (e.g., self.clue_solver.heard_item)
-        else:
-            print(player)
-            print(f"{title}: {item}")
-            self.cluesolver.saw_card(player, item)
-            # Perform the desired action with the selected item (e.g., self.clue_solver.saw_item)
-
-        # Close the new window after handling the click
-        if window:
-            window.destroy()
 
     def print_ptable_button_click(self):
         self.cluesolver.show_probability_table()
@@ -163,18 +170,7 @@ class ClueSolverGUI(tk.Tk):
         # Check if the correct number of items were selected
         if len(guess) != num_items:
             return None
-        print(guess)
         return guess
-            # self.wait_window(new_window)
-            # items_str = simpledialog.askstring(title, f'List 3 items and if they showed a card "True" or "False"(separated by commas):', parent=self)
-            # if items_str:
-            #     selected_items = items_str.split(',')
-            #     print(selected_items)
-            #     print(items)
-            #     selected_items = [item.strip() for item in selected_items if item.strip() in items]
-            #     if len(selected_items) == num_items:
-            #         print(selected_items)
-            #         return selected_items
     
     def choose_item_for_guess(self, title, items):
         selected_item = tk.StringVar()
